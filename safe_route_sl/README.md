@@ -70,6 +70,12 @@ To run the more detailed coverage check used during development:
 pytest --cov=services --cov=utils --cov=models --cov-report=term-missing
 ```
 
+## Run the Application
+
+```bash
+streamlit run app.py
+```
+
 ## Dataset
 
 The `data/` folder contains synthetic CSV and JSON files for locations, roads, and scenarios. The dataset is intentionally fictional and small enough to inspect visually.
