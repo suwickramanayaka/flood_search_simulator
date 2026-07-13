@@ -84,6 +84,24 @@ def test_playback_stops_and_marks_finished_at_final_step(playback_result) -> Non
     assert start_playback(state, playback_result) is False
 
 
+def test_final_failure_step_is_treated_as_playback_completion() -> None:
+    graph = make_unweighted_choice_graph()
+    graph.remove_edge("B", "G")
+    graph.remove_edge("D", "G")
+    configuration = make_start_goal_config("Breadth-First Search", "A", "G")
+    failure_result = BreadthFirstSearch().search(graph, configuration)
+    final_index = last_step(failure_result).step_number
+    state = _playing_state(final_index - 1)
+    start_playback(state, failure_result)
+
+    selected_step = advance_playback(state, failure_result)
+
+    assert selected_step is last_step(failure_result)
+    assert selected_step.event_type == "failure"
+    assert state["simulation_finished"] is True
+    assert state["simulation_playing"] is False
+
+
 def test_reset_and_run_to_completion_stop_playback(playback_result) -> None:
     state = _playing_state(2)
     state["simulation_playing"] = True
