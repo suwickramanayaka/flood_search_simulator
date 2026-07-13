@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import streamlit as st
 
+from visualizations.page_style import apply_page_styles, render_page_title, render_section_title
+
 
 st.set_page_config(
 	page_title="SafeRouteSL",
@@ -11,17 +13,17 @@ st.set_page_config(
 	layout="wide",
 	initial_sidebar_state="expanded",
 )
+apply_page_styles()
 
-st.title("SafeRouteSL")
+render_page_title("SafeRouteSL")
 st.subheader("Interactive flood-evacuation search for education")
 st.write(
 	"SafeRouteSL models a synthetic Sri Lankan local-road network where flooding can increase risk, "
 	"change travel conditions, block roads, or make an evacuation destination unavailable."
 )
+render_section_title("What you can explore")
 st.markdown(
 	"""
-### What you can explore
-
 - **Interactive Simulation:** run a custom search once, then inspect or automatically replay its recorded steps.
 - **Algorithm Comparison:** compare routes, search effort, and approximate educational execution times across five algorithms.
 - **Problem Model:** review the state space, constraints, costs, heuristics, scenarios, and synthetic dataset.

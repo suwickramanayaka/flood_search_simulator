@@ -46,17 +46,28 @@ def test_each_application_page_explicitly_uses_the_wide_layout() -> None:
         assert 'layout="wide"' in source
 
 
-def test_interactive_page_uses_compact_top_spacing() -> None:
+def test_all_application_pages_use_the_shared_visual_style() -> None:
+    style_source = (PROJECT_ROOT / "visualizations" / "page_style.py").read_text(encoding="utf-8")
+    page_paths = (PROJECT_ROOT / "app.py", *sorted((PROJECT_ROOT / "pages").glob("*.py")))
+
+    assert 'data-testid="stMainBlockContainer"' in style_source
+    assert "padding-top: 1rem" in style_source
+    assert 'class="safe-route-page-title"' in style_source
+    assert "margin: 0.15rem 0 1.25rem !important" in style_source
+    assert "padding: 0.45rem 0.75rem 0.45rem 1rem !important" in style_source
+    for path in page_paths:
+        source = path.read_text(encoding="utf-8")
+        assert "apply_page_styles()" in source
+        assert "render_page_title(" in source
+
+
+def test_interactive_page_uses_shared_section_titles() -> None:
     source = (PROJECT_ROOT / "pages" / "1_Interactive_Simulation.py").read_text(encoding="utf-8")
 
-    assert 'data-testid="stMainBlockContainer"' in source
-    assert "padding-top: 1rem" in source
-    assert 'class="safe-route-page-title"' in source
-    assert "margin: 0.15rem 0 1.25rem !important" in source
-    assert "padding: 0.45rem 0.75rem 0.45rem 1rem !important" in source
     assert "render_section_title(\"Controls\")" in source
     assert "render_section_title(\"Scenario View\")" in source
     assert "render_section_title(\"Results\")" in source
+    assert 'st.columns([1.1, 2.2, 1.2], gap="medium")' in source
     assert 'st.expander("About and educational disclaimer")' in source
 
 
@@ -80,7 +91,7 @@ def test_problem_model_has_all_explicit_sections() -> None:
         "Limitations",
     )
 
-    assert all(f'st.subheader("{section}")' in source for section in required_sections)
+    assert all(f'render_section_title("{section}")' in source for section in required_sections)
 
 
 def test_gitignore_covers_generated_artifacts_and_virtual_environments() -> None:

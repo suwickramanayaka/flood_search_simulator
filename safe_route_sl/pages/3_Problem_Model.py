@@ -7,6 +7,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from visualizations.page_style import apply_page_styles, render_page_title, render_section_title
+
 
 st.set_page_config(
 	page_title="Problem Model | SafeRouteSL",
@@ -14,6 +16,7 @@ st.set_page_config(
 	layout="wide",
 	initial_sidebar_state="expanded",
 )
+apply_page_styles()
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -35,38 +38,38 @@ def load_scenarios_dataframe() -> pd.DataFrame:
 	return scenarios[["id", "name", "description"]]
 
 
-st.title("Problem Model")
+render_page_title("Problem Model")
 st.write("SafeRouteSL represents a synthetic Sri Lankan flood-evacuation problem as deterministic graph search.")
 st.caption("Educational simulation using synthetic data. Not for real emergency decision-making.")
 
-st.subheader("Problem Statement")
+render_section_title("Problem Statement")
 st.write(
 	"Select a traversable route from a local starting location to an available evacuation destination while road flooding, "
 	"travel conditions, and the selected optimization objective influence the route."
 )
 
-st.subheader("State-Space Model")
+render_section_title("State-Space Model")
 st.write(
 	"A state identifies the current location and the recorded route used to reach it. Graph nodes represent locations; "
 	"undirected edges represent local roads with distance, travel-time, flood-risk, condition, and blocked attributes."
 )
 
-st.subheader("Initial State")
+render_section_title("Initial State")
 st.write("The initial state is the available start node selected by the user.")
 
-st.subheader("Goal State")
+render_section_title("Goal State")
 st.write("The goal state is the selected available shelter, hospital, school, community hall, temple, or relief centre.")
 
-st.subheader("Actions")
+render_section_title("Actions")
 st.write("From the current node, an action traverses one open road to an available neighbouring node.")
 
-st.subheader("Transition Model")
+render_section_title("Transition Model")
 st.write("Traversing an edge changes the current node, extends the path, and adds the edge's selected cost.")
 
-st.subheader("Goal Test")
+render_section_title("Goal Test")
 st.write("The goal test succeeds when the current node equals the selected goal node.")
 
-st.subheader("Constraints")
+render_section_title("Constraints")
 st.markdown(
 	"""
 - Blocked roads are excluded from traversal.
@@ -77,7 +80,7 @@ st.markdown(
 """
 )
 
-st.subheader("Path-Cost Functions")
+render_section_title("Path-Cost Functions")
 st.markdown(
 	"""
 - **Shortest Distance:** `cost = distance_km`
@@ -89,14 +92,14 @@ Safety and balanced totals are educational composite scores and do not represent
 """
 )
 
-st.subheader("Heuristic")
+render_section_title("Heuristic")
 st.write(
 	"Haversine Distance estimates straight-line distance from a node to the goal. It supports normal distance-mode A* "
 	"validation, but is only an educational estimate for time, safety, and balanced costs. A Zero Heuristic is also "
 	"available and makes A* behave like Uniform-Cost Search."
 )
 
-st.subheader("Search Algorithm Properties")
+render_section_title("Search Algorithm Properties")
 theory_rows = pd.DataFrame(
 	[
 		{"Algorithm": "Breadth-First Search", "Frontier": "Queue", "Complete": "Yes on finite graphs", "Weighted optimal": "No", "Heuristic": "No"},
@@ -108,7 +111,7 @@ theory_rows = pd.DataFrame(
 )
 st.dataframe(theory_rows, width="stretch", hide_index=True)
 
-st.subheader("Dataset")
+render_section_title("Dataset")
 st.write(
 	"The fictional dataset contains readable location records and road records. It is deliberately small enough for "
 	"students to inspect the graph and follow every recorded search step."
@@ -119,14 +122,14 @@ st.dataframe(load_locations_dataframe(), width="stretch", hide_index=True)
 st.write("Roads")
 st.dataframe(load_roads_dataframe(), width="stretch", hide_index=True)
 
-st.subheader("Scenarios")
+render_section_title("Scenarios")
 st.write(
 	"Scenario definitions apply edge or node overrides for normal conditions, a flooded bridge, severe flooding, an "
 	"unavailable shelter, and multiple similar-cost routes."
 )
 st.dataframe(load_scenarios_dataframe(), width="stretch", hide_index=True)
 
-st.subheader("Toolkit Roles")
+render_section_title("Toolkit Roles")
 st.markdown(
 	"""
 - Custom Python algorithms remain the simulator's primary implementations and produce the recorded search steps.
@@ -136,7 +139,7 @@ st.markdown(
 """
 )
 
-st.subheader("Limitations")
+render_section_title("Limitations")
 st.markdown(
 	"""
 - Locations, roads, coordinates, capacities, conditions, and flood values are synthetic.

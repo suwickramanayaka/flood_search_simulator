@@ -20,6 +20,7 @@ from utils.constants import (
 )
 from utils.exceptions import SafeRouteError
 from utils.formatting import format_node_name
+from visualizations.page_style import apply_page_styles, render_page_title, render_section_title
 from visualizations.toolkit_validation_renderer import build_validation_dataframe
 
 
@@ -29,6 +30,7 @@ st.set_page_config(
 	layout="wide",
 	initial_sidebar_state="expanded",
 )
+apply_page_styles()
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -56,7 +58,7 @@ def _sorted_start_nodes(graph) -> list[str]:
 	return sorted(start_nodes, key=lambda node_id: format_node_name(graph, node_id).lower())
 
 
-st.title("Toolkit Validation")
+render_page_title("Toolkit Validation")
 st.write(
 	"Compare the custom educational searches with NetworkX reference implementations. "
 	"The simulator continues to use the custom algorithms for all step recording."
@@ -69,7 +71,7 @@ st.caption(
 )
 st.caption("Educational simulation using synthetic data. Not for real emergency decision-making.")
 
-st.subheader("Toolkit Availability")
+render_section_title("Toolkit Availability")
 st.success(f"NetworkX available ({nx.__version__}) — active reference toolkit")
 simpleai_status = get_simpleai_status()
 if is_simpleai_available():
@@ -140,7 +142,7 @@ if run_clicked:
 	except SafeRouteError as error:
 		st.error(str(error))
 	else:
-		st.subheader("Validation Results")
+		render_section_title("Validation Results")
 		st.dataframe(
 			build_validation_dataframe(records, scenario_graph),
 			width="stretch",

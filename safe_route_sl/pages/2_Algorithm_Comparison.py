@@ -32,6 +32,7 @@ from visualizations.comparison_renderer import (
 	format_summary_insight,
 	prepare_summary_insights,
 )
+from visualizations.page_style import apply_page_styles, render_page_title, render_section_title
 
 
 st.set_page_config(
@@ -40,6 +41,7 @@ st.set_page_config(
 	layout="wide",
 	initial_sidebar_state="expanded",
 )
+apply_page_styles()
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -73,7 +75,7 @@ base_graph = load_base_graph()
 scenarios = load_all_scenarios()
 scenario_ids = list(scenarios.keys())
 
-st.title("Algorithm Comparison")
+render_page_title("Algorithm Comparison")
 st.write("Compare the five custom algorithms using the same scenario and search configuration.")
 st.caption(
 	"Execution times are approximate educational measurements. Safety and balanced totals are composite scores, not physical units."
@@ -134,7 +136,7 @@ else:
 	records = st.session_state.latest_comparison_records
 	failed_names = failed_algorithm_names(records)
 
-	st.subheader("Summary Insights")
+	render_section_title("Summary Insights")
 	insights = prepare_summary_insights(records)
 	if insights:
 		for insight in insights:

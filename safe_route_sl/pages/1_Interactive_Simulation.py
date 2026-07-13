@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from html import escape
 from pathlib import Path
 import time
 
@@ -50,6 +49,7 @@ from utils.exceptions import SafeRouteError
 from utils.formatting import format_node_name, format_optimization_mode_label, humanize_identifier
 from visualizations.card_renderer import render_centered_card
 from visualizations.graph_renderer import build_graph_figure, build_search_step_figure
+from visualizations.page_style import apply_page_styles, render_page_title, render_section_title
 from visualizations.state_renderer import render_search_step_state
 
 
@@ -59,40 +59,10 @@ st.set_page_config(
 	layout="wide",
 	initial_sidebar_state="expanded",
 )
+apply_page_styles()
 st.markdown(
 	"""
 	<style>
-	[data-testid="stMainBlockContainer"] {
-		padding-top: 1rem;
-	}
-	.safe-route-page-title {
-		margin: 0 0 1rem;
-		font-size: clamp(2.4rem, 4vw, 3.25rem);
-		font-weight: 800;
-		letter-spacing: -0.035em;
-		line-height: 1.08;
-		text-align: center;
-	}
-	.safe-route-page-title::after {
-		content: "";
-		display: block;
-		width: 4.5rem;
-		height: 0.25rem;
-		margin: 0.7rem auto 0;
-		border-radius: 999px;
-		background: linear-gradient(90deg, #2d8cff, #22c55e);
-	}
-	.safe-route-section-title {
-		margin: 0.15rem 0 1.25rem !important;
-		padding: 0.45rem 0.75rem 0.45rem 1rem !important;
-		border-left: 0.25rem solid #2d8cff;
-		border-radius: 0.25rem;
-		background: linear-gradient(90deg, rgba(45, 140, 255, 0.14), transparent 75%);
-		font-size: 1.4rem;
-		font-weight: 700;
-		letter-spacing: 0.01em;
-		line-height: 1.2;
-	}
 	[data-testid="stSelectbox"]:has([aria-label="Playback Speed"])
 	[data-baseweb="select"] > div {
 		position: relative;
@@ -192,18 +162,7 @@ def _cost_formula_summary(optimization_mode: str) -> str:
 	return "cost = distance_km + 0.5 × travel_time_min + risk_weight × flood_risk + road_condition_penalty"
 
 
-def render_section_title(title: str) -> None:
-	"""Render a consistent secondary heading for a main page section."""
-	st.markdown(
-		f'<h2 class="safe-route-section-title">{escape(title)}</h2>',
-		unsafe_allow_html=True,
-	)
-
-
-st.markdown(
-	'<h1 class="safe-route-page-title">Interactive Simulation</h1>',
-	unsafe_allow_html=True,
-)
+render_page_title("Interactive Simulation")
 
 initialize_session_state()
 
@@ -212,7 +171,7 @@ scenarios = load_all_scenarios()
 scenario_ids = list(scenarios.keys())
 default_scenario_id = scenario_ids[0]
 
-controls_col, graph_col, results_col = st.columns([1.1, 2.2, 1.2])
+controls_col, graph_col, results_col = st.columns([1.1, 2.2, 1.2], gap="medium")
 
 _coerce_widget_value("scenario_id", scenario_ids, default_scenario_id)
 with controls_col:
