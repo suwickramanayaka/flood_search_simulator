@@ -34,6 +34,13 @@ from visualizations.comparison_renderer import (
 )
 
 
+st.set_page_config(
+	page_title="Algorithm Comparison | SafeRouteSL",
+	page_icon="🌊",
+	layout="wide",
+	initial_sidebar_state="expanded",
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 LOCATIONS_PATH = DATA_DIR / "locations.csv"
@@ -67,7 +74,11 @@ scenarios = load_all_scenarios()
 scenario_ids = list(scenarios.keys())
 
 st.title("Algorithm Comparison")
-st.write("Compare the five core algorithms using the same scenario and configuration family.")
+st.write("Compare the five custom algorithms using the same scenario and search configuration.")
+st.caption(
+	"Execution times are approximate educational measurements. Safety and balanced totals are composite scores, not physical units."
+)
+st.caption("Educational simulation using synthetic data. Not for real emergency decision-making.")
 
 scenario_id = st.selectbox("Flood scenario", options=scenario_ids, format_func=lambda value: scenarios[value].name)
 scenario_graph = apply_scenario_by_id(base_graph, scenarios, scenario_id)
@@ -129,7 +140,7 @@ else:
 		for insight in insights:
 			st.write(f"- {format_summary_insight(insight)}")
 		st.caption(
-			"Algorithms optimize and explore differently; these values describe only this configuration."
+			"Algorithms optimize and explore differently; these values describe only this configuration, and no algorithm is universally best."
 		)
 	else:
 		st.warning("No successful routes are available for summary insights.")

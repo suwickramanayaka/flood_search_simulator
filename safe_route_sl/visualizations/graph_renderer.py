@@ -41,7 +41,7 @@ NODE_STATE_LABELS = {
 	"start": "Start",
 	"goal": "Goal",
 	"final_path": "Final route nodes",
-	"current_path": "Current path",
+	"current_path": "Current path nodes",
 	"frontier": "Frontier",
 	"explored": "Explored",
 	"unavailable": "Unavailable",
@@ -49,11 +49,42 @@ NODE_STATE_LABELS = {
 }
 
 EDGE_STATE_LABELS = {
-	"final_route": "Final route",
-	"current_path": "Current path",
+	"final_route": "Final route edges",
+	"current_path": "Current path edges",
 	"blocked": "Blocked roads",
 	"high_risk": "Higher-risk roads",
 	"normal": "Normal roads",
+}
+
+# The synthetic dataset is geographically compact, so alternating label anchors
+# keeps neighbouring location names readable without changing node positions.
+NODE_LABEL_POSITIONS = {
+	"A": "bottom left",
+	"B": "middle left",
+	"C": "bottom left",
+	"D": "top left",
+	"E": "bottom left",
+	"F": "top left",
+	"G": "top left",
+	"H": "top left",
+	"I": "bottom right",
+	"J": "middle left",
+	"K": "bottom right",
+	"L": "middle right",
+	"M": "top right",
+	"N": "top right",
+}
+
+LEGEND_LAYOUT = {
+	"orientation": "h",
+	"yanchor": "top",
+	"y": -0.06,
+	"xanchor": "center",
+	"x": 0.5,
+	"entrywidth": 145,
+	"entrywidthmode": "pixels",
+	"itemsizing": "constant",
+	"font": {"size": 11},
 }
 
 
@@ -193,7 +224,8 @@ def _node_trace(
 		y=y_values,
 		mode="markers+text",
 		text=[format_node_name(graph, node_id) for node_id in node_ids],
-		textposition="top center",
+		textposition=[NODE_LABEL_POSITIONS.get(node_id, "top center") for node_id in node_ids],
+		textfont={"size": 12},
 		hovertext=hover_texts,
 		hoverinfo="text",
 		marker={"size": size, "color": color, "line": {"color": line_color, "width": line_width}},
@@ -241,39 +273,40 @@ def build_graph_figure(
 
 	fig = go.Figure()
 	if normal_edges:
-		fig.add_trace(_edge_trace(graph, normal_edges, color=EDGE_COLORS["normal"], width=1.5, name="Normal roads", opacity=0.75))
+		fig.add_trace(_edge_trace(graph, normal_edges, color=EDGE_COLORS["normal"], width=2.0, name="Normal roads", opacity=0.75))
 	if severe_edges:
-		fig.add_trace(_edge_trace(graph, severe_edges, color=EDGE_COLORS["high_risk"], width=2.2, name="Higher-risk roads", opacity=0.9))
+		fig.add_trace(_edge_trace(graph, severe_edges, color=EDGE_COLORS["high_risk"], width=3.0, name="Higher-risk roads", opacity=0.9))
 	if blocked_edges:
-		fig.add_trace(_edge_trace(graph, blocked_edges, color=EDGE_COLORS["blocked"], width=2.0, dash="dash", name="Blocked roads", opacity=0.95))
+		fig.add_trace(_edge_trace(graph, blocked_edges, color=EDGE_COLORS["blocked"], width=3.0, dash="dash", name="Blocked roads", opacity=0.95))
 	if final_edges:
-		fig.add_trace(_edge_trace(graph, final_edges, color=EDGE_COLORS["final_route"], width=4.2, name="Final route", opacity=1.0))
+		fig.add_trace(_edge_trace(graph, final_edges, color=EDGE_COLORS["final_route"], width=5.5, name="Final route", opacity=1.0))
 
 	if other_nodes:
-		fig.add_trace(_node_trace(graph, other_nodes, color=NODE_COLORS["unvisited"], name="Locations", size=13))
+		fig.add_trace(_node_trace(graph, other_nodes, color=NODE_COLORS["unvisited"], name="Locations", size=17))
 	if path_only_nodes:
-		fig.add_trace(_node_trace(graph, path_only_nodes, color=NODE_COLORS["final_path"], name="Route nodes", size=15))
+		fig.add_trace(_node_trace(graph, path_only_nodes, color=NODE_COLORS["final_path"], name="Route nodes", size=19))
 	if start_node and start_node in graph:
-		fig.add_trace(_node_trace(graph, [start_node], color=NODE_COLORS["start"], name="Start", size=18))
+		fig.add_trace(_node_trace(graph, [start_node], color=NODE_COLORS["start"], name="Start", size=22))
 	if goal_node and goal_node in graph:
-		fig.add_trace(_node_trace(graph, [goal_node], color=NODE_COLORS["goal"], name="Goal", size=18))
+		fig.add_trace(_node_trace(graph, [goal_node], color=NODE_COLORS["goal"], name="Goal", size=22))
 	if unavailable_nodes:
-		fig.add_trace(_node_trace(graph, unavailable_nodes, color=NODE_COLORS["unavailable"], name="Unavailable", size=13, line_color="#1f2937"))
+		fig.add_trace(_node_trace(graph, unavailable_nodes, color=NODE_COLORS["unavailable"], name="Unavailable", size=17, line_color="#1f2937"))
 
 	longitudes = [float(data["longitude"]) for _, data in graph.nodes(data=True)]
 	latitudes = [float(data["latitude"]) for _, data in graph.nodes(data=True)]
 	lon_min, lon_max = min(longitudes), max(longitudes)
 	lat_min, lat_max = min(latitudes), max(latitudes)
-	lon_pad = max(0.001, (lon_max - lon_min) * 0.08)
-	lat_pad = max(0.001, (lat_max - lat_min) * 0.08)
+	lon_pad = max(0.001, (lon_max - lon_min) * 0.07)
+	lat_pad = max(0.001, (lat_max - lat_min) * 0.07)
 
 	fig.update_layout(
 		template="plotly_white",
 		showlegend=True,
-		margin={"l": 20, "r": 20, "t": 20, "b": 20},
+		height=680,
+		margin={"l": 20, "r": 20, "t": 20, "b": 105},
 		xaxis={"visible": False, "range": [lon_min - lon_pad, lon_max + lon_pad]},
 		yaxis={"visible": False, "range": [lat_min - lat_pad, lat_max + lat_pad], "scaleanchor": "x", "scaleratio": 1},
-		legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "left", "x": 0},
+		legend=LEGEND_LAYOUT,
 	)
 	fig.update_traces(cliponaxis=False)
 	return fig
@@ -299,11 +332,11 @@ def build_search_step_figure(
 
 	figure = go.Figure()
 	edge_styles = {
-		"normal": (EDGE_COLORS["normal"], 1.5, "solid", 0.75),
-		"high_risk": (EDGE_COLORS["high_risk"], 2.2, "solid", 0.9),
-		"blocked": (EDGE_COLORS["blocked"], 2.0, "dash", 0.95),
-		"current_path": (EDGE_COLORS["current_path"], 3.4, "solid", 1.0),
-		"final_route": (EDGE_COLORS["final_route"], 4.2, "solid", 1.0),
+		"normal": (EDGE_COLORS["normal"], 2.0, "solid", 0.75),
+		"high_risk": (EDGE_COLORS["high_risk"], 3.0, "solid", 0.9),
+		"blocked": (EDGE_COLORS["blocked"], 3.0, "dash", 0.95),
+		"current_path": (EDGE_COLORS["current_path"], 4.5, "solid", 1.0),
+		"final_route": (EDGE_COLORS["final_route"], 5.5, "solid", 1.0),
 	}
 	for state in ("normal", "high_risk", "blocked", "current_path", "final_route"):
 		edges = edges_by_state[state]
@@ -322,15 +355,15 @@ def build_search_step_figure(
 			)
 
 	node_sizes = {
-		"current": 20,
-		"start": 18,
-		"goal": 18,
-		"final_path": 15,
-		"current_path": 15,
-		"frontier": 15,
-		"explored": 14,
-		"unavailable": 13,
-		"unvisited": 13,
+		"current": 25,
+		"start": 22,
+		"goal": 22,
+		"final_path": 19,
+		"current_path": 19,
+		"frontier": 19,
+		"explored": 17,
+		"unavailable": 17,
+		"unvisited": 17,
 	}
 	for state in reversed(NODE_STATE_PRECEDENCE):
 		node_ids = nodes_by_state[state]
@@ -352,24 +385,17 @@ def build_search_step_figure(
 	latitudes = [position[1] for position in positions.values()]
 	lon_min, lon_max = min(longitudes), max(longitudes)
 	lat_min, lat_max = min(latitudes), max(latitudes)
-	lon_pad = max(0.001, (lon_max - lon_min) * 0.08)
-	lat_pad = max(0.001, (lat_max - lat_min) * 0.08)
-	current_name = format_node_name(graph, step.current_node) if step.current_node is not None else "None"
+	lon_pad = max(0.001, (lon_max - lon_min) * 0.07)
+	lat_pad = max(0.001, (lat_max - lat_min) * 0.07)
 
 	figure.update_layout(
-		title={
-			"text": (
-				f"{configuration.algorithm} — Step {step.step_number} — "
-				f"{humanize_identifier(step.event_type)} — Current: {current_name}"
-			),
-			"x": 0.01,
-		},
 		template="plotly_white",
 		showlegend=True,
-		margin={"l": 20, "r": 20, "t": 55, "b": 20},
+		height=680,
+		margin={"l": 20, "r": 20, "t": 20, "b": 105},
 		xaxis={"visible": False, "range": [lon_min - lon_pad, lon_max + lon_pad]},
 		yaxis={"visible": False, "range": [lat_min - lat_pad, lat_max + lat_pad], "scaleanchor": "x", "scaleratio": 1},
-		legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "left", "x": 0},
+		legend=LEGEND_LAYOUT,
 	)
 	figure.update_traces(cliponaxis=False)
 	return figure

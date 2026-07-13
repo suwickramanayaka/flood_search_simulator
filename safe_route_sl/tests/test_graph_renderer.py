@@ -153,6 +153,28 @@ def test_rendering_does_not_mutate_inputs_and_positions_are_stable() -> None:
     )
 
 
+def test_graph_layout_centers_enlarged_graph_legend_and_dense_node_labels() -> None:
+    graph, configuration, result = _search_fixture()
+    figure = build_search_step_figure(graph, result.steps[0], result, configuration)
+    node_traces = [trace for trace in figure.data if trace.mode == "markers+text"]
+    label_positions = {
+        position
+        for trace in node_traces
+        for position in trace.textposition
+    }
+
+    assert figure.layout.height == 680
+    assert figure.layout.title.text is None
+    assert figure.layout.legend.y == -0.06
+    assert figure.layout.legend.yanchor == "top"
+    assert figure.layout.legend.x == 0.5
+    assert figure.layout.legend.xanchor == "center"
+    assert figure.layout.legend.entrywidth == 145
+    assert max(trace.marker.size for trace in node_traces) >= 22
+    assert max(trace.textfont.size for trace in node_traces) == 12
+    assert len(label_positions) > 1
+
+
 def test_existing_final_state_renderer_remains_compatible() -> None:
     graph, _, result = _search_fixture()
     figure = build_graph_figure(

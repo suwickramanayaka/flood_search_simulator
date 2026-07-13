@@ -8,7 +8,8 @@ import streamlit as st
 
 from models.configuration import SearchConfiguration
 from models.search_models import SearchResult, SearchStep
-from utils.formatting import format_cost, format_node_name, format_path, humanize_identifier
+from utils.formatting import format_node_name, format_path, humanize_identifier
+from visualizations.card_renderer import render_centered_card
 from visualizations.metrics_renderer import render_search_metrics
 
 
@@ -37,6 +38,21 @@ def build_step_cost_values(
 		for label, attribute_name in field_names
 		if (value := getattr(step, attribute_name)) is not None
 	}
+
+
+def build_step_summary_values(graph: nx.Graph, step: SearchStep) -> tuple[tuple[str, str], ...]:
+	"""Return compact human-readable values for the search-state summary cards."""
+	current_node = (
+		format_node_name(graph, step.current_node)
+		if step.current_node is not None
+		else "None"
+	)
+	return (
+		("Step", str(step.step_number)),
+		("Event", humanize_identifier(step.event_type)),
+		("Current node", current_node),
+		("Goal status", "Reached" if step.goal_found else "Not reached"),
+	)
 
 
 def build_frontier_dataframe(graph: nx.Graph, step: SearchStep) -> pd.DataFrame:
@@ -89,43 +105,42 @@ def render_search_step_state(
 ) -> None:
 	"""Render the currently selected recorded search state."""
 	st.subheader("Search State")
-	st.write(f"Step number: {step.step_number}")
-	st.write(f"Event type: {humanize_identifier(step.event_type)}")
-	st.write(
-		f"Current node: {format_node_name(graph, step.current_node)}"
-		if step.current_node is not None
-		else "Current node: None"
-	)
-	st.write(f"Current path: {format_path(graph, step.current_path)}")
-	st.write(f"Goal status: {'Reached' if step.goal_found else 'Not reached'}")
+	summary_columns = st.columns([0.65, 0.85, 1.4, 1.0])
+	for column, (label, value) in zip(summary_columns, build_step_summary_values(graph, step)):
+		with column:
+			render_centered_card(label, value)
+
+	render_centered_card("Current path", format_path(graph, step.current_path))
 
 	cost_values = build_step_cost_values(step, configuration)
 	if cost_values:
 		cost_columns = st.columns(len(cost_values))
 		for column, (label, value) in zip(cost_columns, cost_values.items()):
-			column.metric(label, value)
+			with column:
+				render_centered_card(label, value, prominent=True)
 
 	st.write("Frontier")
 	if step.frontier_entries:
-		st.dataframe(build_frontier_dataframe(graph, step), use_container_width=True, hide_index=True)
+		st.dataframe(build_frontier_dataframe(graph, step), width="stretch", hide_index=True)
 	else:
 		st.info("The frontier is empty.")
 
-	st.write("Explored nodes")
-	st.write(format_explored_nodes(graph, step))
+	render_centered_card("Explored nodes", format_explored_nodes(graph, step))
 
 	metric_columns = st.columns(3)
-	metric_columns[0].metric("Nodes expanded", str(step.nodes_expanded))
-	metric_columns[1].metric("Nodes generated", str(step.nodes_generated))
-	metric_columns[2].metric("Max frontier", str(step.maximum_frontier_size))
+	with metric_columns[0]:
+		render_centered_card("Nodes expanded", step.nodes_expanded, prominent=True)
+	with metric_columns[1]:
+		render_centered_card("Nodes generated", step.nodes_generated, prominent=True)
+	with metric_columns[2]:
+		render_centered_card("Max frontier", step.maximum_frontier_size, prominent=True)
 
 	st.write("Step explanation")
 	st.info(step.explanation or "No explanation recorded for this step.")
 
 	if step.goal_found:
 		st.success("The goal has been reached.")
-		st.write(f"Final path: {format_path(graph, result.final_path)}")
-		st.write(f"Final cost: {format_cost(result.total_cost, configuration.optimization_mode)}")
+		render_centered_card("Final path", format_path(graph, result.final_path))
 	elif step.event_type == "failure":
 		st.warning("The search finished without finding a traversable route.")
 

@@ -7,8 +7,13 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from utils.constants import BALANCED_MODE, DISTANCE_MODE, OPTIMIZATION_MODE_LABELS, SAFETY_MODE, TIME_MODE
 
+st.set_page_config(
+	page_title="Problem Model | SafeRouteSL",
+	page_icon="🌊",
+	layout="wide",
+	initial_sidebar_state="expanded",
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -31,44 +36,67 @@ def load_scenarios_dataframe() -> pd.DataFrame:
 
 
 st.title("Problem Model")
-st.write("SafeRouteSL models flood-safe evacuation routing as a weighted graph search problem.")
+st.write("SafeRouteSL represents a synthetic Sri Lankan flood-evacuation problem as deterministic graph search.")
+st.caption("Educational simulation using synthetic data. Not for real emergency decision-making.")
 
-st.subheader("Local Problem")
-st.write("The project demonstrates how routes across Sri Lankan local roads change when flooding increases risk or blocks roads.")
+st.subheader("Problem Statement")
+st.write(
+	"Select a traversable route from a local starting location to an available evacuation destination while road flooding, "
+	"travel conditions, and the selected optimization objective influence the route."
+)
 
-st.subheader("Graph Representation")
+st.subheader("State-Space Model")
+st.write(
+	"A state identifies the current location and the recorded route used to reach it. Graph nodes represent locations; "
+	"undirected edges represent local roads with distance, travel-time, flood-risk, condition, and blocked attributes."
+)
+
+st.subheader("Initial State")
+st.write("The initial state is the available start node selected by the user.")
+
+st.subheader("Goal State")
+st.write("The goal state is the selected available shelter, hospital, school, community hall, temple, or relief centre.")
+
+st.subheader("Actions")
+st.write("From the current node, an action traverses one open road to an available neighbouring node.")
+
+st.subheader("Transition Model")
+st.write("Traversing an edge changes the current node, extends the path, and adds the edge's selected cost.")
+
+st.subheader("Goal Test")
+st.write("The goal test succeeds when the current node equals the selected goal node.")
+
+st.subheader("Constraints")
 st.markdown(
 	"""
-- Nodes represent locations.
-- Edges represent roads.
-- Edge attributes represent distance, time, risk, and road condition.
+- Blocked roads are excluded from traversal.
+- Unavailable locations cannot be used as selectable destinations or traversed nodes.
+- Start and goal nodes must exist, be available, and be different for an ordinary route search.
+- Costs and risk weights must be non-negative and road data must pass validation.
+- Scenario overrides are applied to graph copies so the base graph is not mutated.
 """
 )
 
-st.subheader("Search Problem")
+st.subheader("Path-Cost Functions")
 st.markdown(
 	"""
-- Initial state: the selected start location.
-- Goal state: the selected evacuation destination.
-- Actions: traverse a traversable road to a neighbouring node.
-- Transition model: moving across an edge updates the current location and accumulated cost.
-- Goal test: the current node matches the selected goal.
-- Path cost: the sum of selected edge costs.
-- Heuristic: straight-line Haversine distance or zero.
+- **Shortest Distance:** `cost = distance_km`
+- **Fastest Travel Time:** `cost = travel_time_min`
+- **Safest Route:** `cost = distance_km + risk_weight × flood_risk + road_condition_penalty`
+- **Balanced Route:** `cost = distance_km + 0.5 × travel_time_min + risk_weight × flood_risk + road_condition_penalty`
+
+Safety and balanced totals are educational composite scores and do not represent a real-world physical unit.
 """
 )
 
-st.subheader("Cost Modes")
-st.markdown(
-	"""
-- Distance: `cost = distance_km`
-- Time: `cost = travel_time_min`
-- Safety: `cost = distance_km + risk_weight × flood_risk + road_condition_penalty`
-- Balanced: `cost = distance_km + 0.5 × travel_time_min + risk_weight × flood_risk + road_condition_penalty`
-"""
+st.subheader("Heuristic")
+st.write(
+	"Haversine Distance estimates straight-line distance from a node to the goal. It supports normal distance-mode A* "
+	"validation, but is only an educational estimate for time, safety, and balanced costs. A Zero Heuristic is also "
+	"available and makes A* behave like Uniform-Cost Search."
 )
 
-st.subheader("Algorithm Theory")
+st.subheader("Search Algorithm Properties")
 theory_rows = pd.DataFrame(
 	[
 		{"Algorithm": "Breadth-First Search", "Frontier": "Queue", "Complete": "Yes on finite graphs", "Weighted optimal": "No", "Heuristic": "No"},
@@ -78,16 +106,43 @@ theory_rows = pd.DataFrame(
 		{"Algorithm": "A* Search", "Frontier": "Priority queue", "Complete": "Yes under suitable conditions", "Weighted optimal": "Conditional", "Heuristic": "Yes"},
 	]
 )
-st.dataframe(theory_rows, use_container_width=True, hide_index=True)
+st.dataframe(theory_rows, width="stretch", hide_index=True)
 
-st.subheader("Dataset Tables")
-st.write("Location data")
-st.dataframe(load_locations_dataframe(), use_container_width=True, hide_index=True)
+st.subheader("Dataset")
+st.write(
+	"The fictional dataset contains readable location records and road records. It is deliberately small enough for "
+	"students to inspect the graph and follow every recorded search step."
+)
+st.write("Locations")
+st.dataframe(load_locations_dataframe(), width="stretch", hide_index=True)
 
-st.write("Road data")
-st.dataframe(load_roads_dataframe(), use_container_width=True, hide_index=True)
+st.write("Roads")
+st.dataframe(load_roads_dataframe(), width="stretch", hide_index=True)
 
-st.write("Scenario descriptions")
-st.dataframe(load_scenarios_dataframe(), use_container_width=True, hide_index=True)
+st.subheader("Scenarios")
+st.write(
+	"Scenario definitions apply edge or node overrides for normal conditions, a flooded bridge, severe flooding, an "
+	"unavailable shelter, and multiple similar-cost routes."
+)
+st.dataframe(load_scenarios_dataframe(), width="stretch", hide_index=True)
 
-st.info("Educational simulation using synthetic data. Not for real emergency decision-making.")
+st.subheader("Toolkit Roles")
+st.markdown(
+	"""
+- Custom Python algorithms remain the simulator's primary implementations and produce the recorded search steps.
+- NetworkX provides reference BFS, Dijkstra, and A* results for academic validation.
+- SimpleAI support is optional and is not required to run the application.
+- Reference toolkits may return different but equally valid paths; matching edge count or weighted cost can matter more than an identical node sequence.
+"""
+)
+
+st.subheader("Limitations")
+st.markdown(
+	"""
+- Locations, roads, coordinates, capacities, conditions, and flood values are synthetic.
+- The graph is small and static apart from predefined scenario overrides.
+- Flood risk is an ordinal educational input, not a live forecast or calibrated hazard model.
+- Approximate execution times are classroom observations, not scientific performance benchmarks.
+- Route output must not be used for emergency response, public safety, or real navigation.
+"""
+)

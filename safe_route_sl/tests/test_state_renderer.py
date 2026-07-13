@@ -18,6 +18,7 @@ from utils.constants import DISTANCE_MODE
 from visualizations.state_renderer import (
     build_frontier_dataframe,
     build_step_cost_values,
+    build_step_summary_values,
     format_explored_nodes,
     is_completed_step,
 )
@@ -145,6 +146,18 @@ def test_goal_and_failure_steps_are_completed(graph) -> None:
     intermediate_step = replace(result.steps[1], event_type="expand", goal_found=False)
     assert is_completed_step(failure_step) is True
     assert is_completed_step(intermediate_step) is False
+
+
+def test_step_summary_values_are_compact_and_human_readable(graph) -> None:
+    result, _ = _result_for(graph, "Breadth-First Search")
+    summary = dict(build_step_summary_values(graph, result.steps[-1]))
+
+    assert summary == {
+        "Step": str(result.steps[-1].step_number),
+        "Event": "Goal",
+        "Current node": "Goal Shelter",
+        "Goal status": "Reached",
+    }
 
 
 def test_page_uses_step_renderer_without_direct_step_or_search_history_rendering() -> None:

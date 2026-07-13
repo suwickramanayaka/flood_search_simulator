@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from html import escape
 from pathlib import Path
 import time
 
@@ -47,9 +48,72 @@ from utils.constants import (
 )
 from utils.exceptions import SafeRouteError
 from utils.formatting import format_node_name, format_optimization_mode_label, humanize_identifier
+from visualizations.card_renderer import render_centered_card
 from visualizations.graph_renderer import build_graph_figure, build_search_step_figure
 from visualizations.state_renderer import render_search_step_state
 
+
+st.set_page_config(
+	page_title="Interactive Simulation | SafeRouteSL",
+	page_icon="🌊",
+	layout="wide",
+	initial_sidebar_state="expanded",
+)
+st.markdown(
+	"""
+	<style>
+	[data-testid="stMainBlockContainer"] {
+		padding-top: 1rem;
+	}
+	.safe-route-page-title {
+		margin: 0 0 1rem;
+		font-size: clamp(2.4rem, 4vw, 3.25rem);
+		font-weight: 800;
+		letter-spacing: -0.035em;
+		line-height: 1.08;
+		text-align: center;
+	}
+	.safe-route-page-title::after {
+		content: "";
+		display: block;
+		width: 4.5rem;
+		height: 0.25rem;
+		margin: 0.7rem auto 0;
+		border-radius: 999px;
+		background: linear-gradient(90deg, #2d8cff, #22c55e);
+	}
+	.safe-route-section-title {
+		margin: 0.15rem 0 1.25rem !important;
+		padding: 0.45rem 0.75rem 0.45rem 1rem !important;
+		border-left: 0.25rem solid #2d8cff;
+		border-radius: 0.25rem;
+		background: linear-gradient(90deg, rgba(45, 140, 255, 0.14), transparent 75%);
+		font-size: 1.4rem;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+		line-height: 1.2;
+	}
+	[data-testid="stSelectbox"]:has([aria-label="Playback Speed"])
+	[data-baseweb="select"] > div {
+		position: relative;
+	}
+	[data-testid="stSelectbox"]:has([aria-label="Playback Speed"])
+	[data-baseweb="select"] > div > div:first-child {
+		position: absolute;
+		left: 2.5rem;
+		right: 2.5rem;
+		width: auto;
+		text-align: center !important;
+	}
+	[data-testid="stSelectbox"]:has([aria-label="Playback Speed"])
+	[data-baseweb="select"] > div > div:first-child > div {
+		width: 100%;
+		text-align: center !important;
+	}
+	</style>
+	""",
+	unsafe_allow_html=True,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -128,6 +192,19 @@ def _cost_formula_summary(optimization_mode: str) -> str:
 	return "cost = distance_km + 0.5 × travel_time_min + risk_weight × flood_risk + road_condition_penalty"
 
 
+def render_section_title(title: str) -> None:
+	"""Render a consistent secondary heading for a main page section."""
+	st.markdown(
+		f'<h2 class="safe-route-section-title">{escape(title)}</h2>',
+		unsafe_allow_html=True,
+	)
+
+
+st.markdown(
+	'<h1 class="safe-route-page-title">Interactive Simulation</h1>',
+	unsafe_allow_html=True,
+)
+
 initialize_session_state()
 
 base_graph = load_base_graph()
@@ -135,13 +212,17 @@ scenarios = load_all_scenarios()
 scenario_ids = list(scenarios.keys())
 default_scenario_id = scenario_ids[0]
 
+controls_col, graph_col, results_col = st.columns([1.1, 2.2, 1.2])
+
 _coerce_widget_value("scenario_id", scenario_ids, default_scenario_id)
-scenario_id = st.selectbox(
-	"Flood scenario",
-	options=scenario_ids,
-	format_func=lambda value: scenarios[value].name,
-	key="scenario_id",
-)
+with controls_col:
+	render_section_title("Controls")
+	scenario_id = st.selectbox(
+		"Flood scenario",
+		options=scenario_ids,
+		format_func=lambda value: scenarios[value].name,
+		key="scenario_id",
+	)
 
 scenario = scenarios[scenario_id]
 scenario_graph = apply_scenario_by_id(base_graph, scenarios, scenario_id)
@@ -161,10 +242,7 @@ _coerce_widget_value("algorithm", list(SEARCH_ALGORITHM_LABELS), SEARCH_ALGORITH
 _coerce_widget_value("optimization_mode", list(OPTIMIZATION_MODE_LABELS.keys()), BALANCED_MODE)
 _coerce_widget_value("risk_weight", [st.session_state.get("risk_weight", 4.0)], 4.0)
 
-controls_col, graph_col, results_col = st.columns([1.1, 2.2, 1.2])
-
 with controls_col:
-	st.subheader("Controls")
 	st.caption(scenario.description)
 
 	algorithm = st.selectbox(
@@ -215,13 +293,19 @@ with controls_col:
 		heuristic_type = "zero"
 		st.caption("Heuristic settings are ignored for this algorithm.")
 
-	run_clicked = st.button("Run Search", type="primary", use_container_width=True)
+	run_clicked = st.button("Run Search", type="primary", width="stretch")
 
 	st.button(
 		"Reset Controls",
 		on_click=reset_controls,
-		use_container_width=True,
+		width="stretch",
 	)
+
+	with st.expander("About and educational disclaimer"):
+		st.write(
+			"Run a custom search once, then explore its recorded search states with manual or automatic playback."
+		)
+		st.caption("Educational simulation using synthetic data. Not for real emergency decision-making.")
 
 configuration = SearchConfiguration(
 	algorithm=algorithm,
@@ -256,9 +340,12 @@ normalize_playback_interval(st.session_state)
 normalize_playback_state(st.session_state, st.session_state.latest_result)
 
 with graph_col:
-	st.subheader("Scenario View")
-	st.write(f"Scenario: {scenario.name}")
-	st.write(f"Optimization mode: {format_optimization_mode_label(optimization_mode)}")
+	render_section_title("Scenario View")
+	scenario_summary_columns = st.columns(2)
+	with scenario_summary_columns[0]:
+		render_centered_card("Scenario", scenario.name)
+	with scenario_summary_columns[1]:
+		render_centered_card("Optimization mode", format_optimization_mode_label(optimization_mode))
 	st.caption(_cost_formula_summary(optimization_mode))
 
 	if st.session_state.latest_result is None:
@@ -270,7 +357,7 @@ with graph_col:
 			optimization_mode=configuration.optimization_mode,
 			risk_weight=configuration.risk_weight,
 		)
-		st.plotly_chart(graph_figure, use_container_width=True)
+		st.plotly_chart(graph_figure, width="stretch")
 	else:
 		result = st.session_state.latest_result
 		current_index = int(st.session_state.current_step_index)
@@ -282,38 +369,39 @@ with graph_col:
 		previous_clicked = navigation_columns[0].button(
 			"Previous",
 			disabled=at_first_step or is_playing,
-			use_container_width=True,
+			width="stretch",
 			key="simulation_previous",
 		)
 		next_clicked = navigation_columns[1].button(
 			"Next",
 			disabled=at_last_step or is_playing,
-			use_container_width=True,
+			width="stretch",
 			key="simulation_next",
 		)
 		reset_clicked = navigation_columns[2].button(
 			"Reset",
-			use_container_width=True,
+			width="stretch",
 			key="simulation_reset",
 		)
 		complete_clicked = navigation_columns[3].button(
 			"Run to Completion",
 			disabled=at_last_step,
-			use_container_width=True,
+			width="stretch",
 			key="simulation_complete",
 		)
 
+		st.caption("Playback controls")
 		playback_columns = st.columns([1, 1, 1.5])
 		autoplay_clicked = playback_columns[0].button(
 			"Auto Play",
 			disabled=is_playing or at_last_step,
-			use_container_width=True,
+			width="stretch",
 			key="simulation_autoplay",
 		)
 		pause_clicked = playback_columns[1].button(
 			"Pause",
 			disabled=not is_playing,
-			use_container_width=True,
+			width="stretch",
 			key="simulation_pause",
 		)
 		playback_labels = tuple(PLAYBACK_INTERVALS)
@@ -326,6 +414,7 @@ with graph_col:
 			options=playback_labels,
 			index=playback_labels.index(current_speed_label),
 			key="playback_speed_label",
+			label_visibility="collapsed",
 		)
 		st.session_state.playback_interval_seconds = PLAYBACK_INTERVALS[selected_speed_label]
 
@@ -374,10 +463,10 @@ with graph_col:
 			result,
 			configuration,
 		)
-		st.plotly_chart(graph_figure, use_container_width=True)
+		st.plotly_chart(graph_figure, width="stretch")
 
 with results_col:
-	st.subheader("Results")
+	render_section_title("Results")
 	if st.session_state.search_error:
 		st.error(st.session_state.search_error)
 	elif st.session_state.latest_result is None:

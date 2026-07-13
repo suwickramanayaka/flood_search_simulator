@@ -8,7 +8,19 @@ version = "0.1.0"
 description = "SafeRouteSL - Interactive Search Algorithm Simulator for Flood-Safe Evacuation Planning in Sri Lanka"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "streamlit>=1.59.1",
+    "networkx>=3.3",
+    "plotly>=5.24",
+    "pandas>=2.2",
+]
+
+[project.optional-dependencies]
+simpleai = ["simpleai>=0.8.3"]
+test = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
 
 [tool.setuptools]
 include-package-data = true

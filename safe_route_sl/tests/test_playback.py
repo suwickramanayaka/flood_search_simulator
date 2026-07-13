@@ -229,5 +229,9 @@ def test_page_uses_one_step_reruns_and_stored_history_only() -> None:
     assert "time.sleep(normalize_playback_interval(st.session_state))" in source
     assert "st.rerun()" in source
     assert "st.session_state.playback_interval_seconds = PLAYBACK_INTERVALS[selected_speed_label]" in source
+    assert 'st.caption("Playback controls")' in source
+    assert 'label_visibility="collapsed"' in source
+    assert ':has([aria-label="Playback Speed"])' in source
+    assert "text-align: center !important" in source
     assert "build_search_step_figure(" in source
     assert "render_search_step_state(" in source

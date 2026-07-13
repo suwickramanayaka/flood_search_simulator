@@ -13,15 +13,22 @@ st.set_page_config(
 )
 
 st.title("SafeRouteSL")
-st.subheader("Flood-safe evacuation routing for educational use")
+st.subheader("Interactive flood-evacuation search for education")
 st.write(
-	"Use the interactive simulation page to choose a scenario, configure a search, and inspect the final route and metrics."
+	"SafeRouteSL models a synthetic Sri Lankan local-road network where flooding can increase risk, "
+	"change travel conditions, block roads, or make an evacuation destination unavailable."
 )
-st.info("Educational simulation using synthetic data. Not for real emergency decision-making.")
-
 st.markdown(
 	"""
-### Navigation
-Use the Streamlit pages in the sidebar to open the interactive simulation, compare algorithms, or review the problem model.
+### What you can explore
+
+- **Interactive Simulation:** run a custom search once, then inspect or automatically replay its recorded steps.
+- **Algorithm Comparison:** compare routes, search effort, and approximate educational execution times across five algorithms.
+- **Problem Model:** review the state space, constraints, costs, heuristics, scenarios, and synthetic dataset.
+- **Toolkit Validation:** compare selected custom results with NetworkX reference implementations.
+
+Use the sidebar to open any page.
 """
 )
+
+st.info("Educational simulation using synthetic data. Not for real emergency decision-making.")
