@@ -1,0 +1,88 @@
+[
+  {
+    "id": "normal_conditions",
+    "name": "Normal Conditions",
+    "description": "All roads are open and flood risk remains low to moderate for baseline comparison.",
+    "edge_overrides": [],
+    "node_overrides": []
+  },
+  {
+    "id": "bridge_flooded",
+    "name": "Bridge Flooded",
+    "description": "The main bridge road is blocked due to severe flooding.",
+    "edge_overrides": [
+      {
+        "source": "K",
+        "target": "L",
+        "blocked": true,
+        "flood_risk": 5
+      }
+    ],
+    "node_overrides": []
+  },
+  {
+    "id": "severe_flooding",
+    "name": "Severe Flooding",
+    "description": "Several roads receive elevated flood-risk values so the safer route becomes different from the shortest route.",
+    "edge_overrides": [
+      {
+        "source": "A",
+        "target": "B",
+        "flood_risk": 5
+      },
+      {
+        "source": "B",
+        "target": "C",
+        "flood_risk": 5
+      },
+      {
+        "source": "K",
+        "target": "L",
+        "flood_risk": 5
+      },
+      {
+        "source": "E",
+        "target": "G",
+        "flood_risk": 4
+      }
+    ],
+    "node_overrides": []
+  },
+  {
+    "id": "shelter_unavailable",
+    "name": "Shelter Unavailable",
+    "description": "One shelter is at capacity and unavailable, so another evacuation centre must be selected.",
+    "edge_overrides": [],
+    "node_overrides": [
+      {
+        "id": "H",
+        "available": false,
+        "capacity": 0
+      }
+    ]
+  },
+  {
+    "id": "multiple_equal_cost_paths",
+    "name": "Multiple Equal-Cost Paths",
+    "description": "Two or more routes are configured to have similar overall cost so tie-breaking behaviour becomes visible.",
+    "edge_overrides": [
+      {
+        "source": "A",
+        "target": "C",
+        "distance_km": 3.0,
+        "travel_time_min": 7,
+        "flood_risk": 2,
+        "road_condition": "fair"
+      },
+      {
+        "source": "A",
+        "target": "D",
+        "distance_km": 3.0,
+        "travel_time_min": 7,
+        "flood_risk": 2,
+        "road_condition": "fair"
+      }
+    ],
+    "node_overrides": []
+  }
+]

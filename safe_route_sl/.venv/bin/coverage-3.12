@@ -1,0 +1,10 @@
+#!/bin/sh
+'''exec' "/Users/sithumuthsara/On My Mac Documents/Development/flood_search_simulator/safe_route_sl/.venv/bin/python" "$0" "$@"
+' '''
+# -*- coding: utf-8 -*-
+import re
+import sys
+from coverage.cmdline import main_deprecated
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main_deprecated())

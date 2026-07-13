@@ -1,0 +1,15 @@
+id,name,short_name,type,latitude,longitude,capacity,available,description
+A,Millaniya Village,Village,village,6.6812,80.0194,0,true,Synthetic flood-affected village
+B,Kuda Bridge,Bridge,bridge,6.6850,80.0240,0,true,Synthetic bridge crossing
+C,Town Junction,Town,junction,6.6895,80.0285,0,true,Synthetic junction connecting local roads
+D,Temple Shelter,Temple,shelter,6.7060,80.0210,100,true,Temporary evacuation shelter at a temple
+E,Market Junction,Market,junction,6.6945,80.0340,0,true,Synthetic market junction
+F,Community Hall,Hall,community_hall,6.7035,80.0380,180,true,Community hall used as relief centre
+G,District Hospital,Hospital,hospital,6.7210,80.0400,80,true,Hospital with emergency facilities
+H,School Evacuation Centre,School,shelter,6.7280,80.0260,200,true,Temporary school evacuation centre
+I,Riverside Village,Riverside,village,6.7005,80.0450,0,true,Synthetic riverside settlement
+J,Police Station,Station,police_station,6.7125,80.0335,20,true,Local police station and coordination point
+K,Main Bridge,Bridge,bridge,6.6988,80.0495,0,true,Major bridge crossing over flood-prone waterway
+L,Divisional Secretariat,Secretariat,junction,6.7185,80.0470,0,true,Administrative coordination point
+M,Hill Road Junction,Hill,junction,6.7250,80.0550,0,true,Junction on slightly elevated terrain
+N,Relief Distribution Centre,Relief,community_hall,6.7310,80.0410,150,true,Relief distribution centre and assembly point

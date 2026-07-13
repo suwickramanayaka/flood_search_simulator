@@ -1,0 +1,23 @@
+source,target,road_name,distance_km,travel_time_min,flood_risk,road_condition,blocked
+A,B,Village Bridge Road,2.0,5,4,poor,false
+A,C,Southern Access Road,3.0,7,2,fair,false
+A,D,Temple Road,4.5,9,1,good,false
+B,C,Canal Road,2.5,6,5,poor,false
+B,K,Main Bridge Approach,3.2,8,4,fair,false
+C,E,Town Access Road,3.0,7,2,good,false
+C,L,Secretariat Link,4.2,9,2,fair,false
+D,H,School Road,3.2,7,1,good,false
+D,F,Community Lane,2.8,6,2,good,false
+E,G,Hospital Road,2.8,6,2,good,false
+E,M,Hill Road,3.5,8,3,fair,false
+F,G,Relief Link,3.1,7,2,fair,false
+G,J,Station Road,2.2,5,1,good,false
+H,J,School Connector,4.0,9,2,good,false
+I,M,Riverside Ascent,2.7,6,4,poor,false
+I,N,Relief Bypass,5.0,11,1,fair,false
+J,L,Secretariat Road,2.4,5,1,good,false
+K,L,Main Bridge Crossing,2.6,6,5,poor,false
+K,E,Market Connector,3.6,8,4,fair,false
+L,N,Relief Centre Road,3.3,7,2,good,false
+M,N,Upland Relief Road,2.9,7,3,fair,false
+M,H,Hill School Spur,4.1,10,4,poor,false

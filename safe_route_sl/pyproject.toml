@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "safe_route_sl"
+version = "0.1.0"
+description = "SafeRouteSL - Interactive Search Algorithm Simulator for Flood-Safe Evacuation Planning in Sri Lanka"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["algorithms*", "models*", "services*", "visualizations*", "utils*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
