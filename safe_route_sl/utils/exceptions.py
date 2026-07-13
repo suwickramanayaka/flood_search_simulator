@@ -27,3 +27,7 @@ class InvalidOptimizationModeError(SafeRouteError):
 
 class UnavailableGoalError(SafeRouteError):
     """Raised when the selected goal is unavailable."""
+
+
+class SimulationNavigationError(SafeRouteError):
+    """Raised when search-history navigation cannot be completed."""

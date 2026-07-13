@@ -22,6 +22,10 @@ def test_ucs_finds_minimum_cost_route() -> None:
     assert result.final_path == ("A", "C", "D", "G")
     assert result.total_cost == pytest.approx(6.0)
     assert result.path_length_edges == 3
+    assert all(step.nodes_generated >= 1 for step in result.steps)
+    assert tuple(step.nodes_generated for step in result.steps) == tuple(
+        sorted(step.nodes_generated for step in result.steps)
+    )
 
 
 def test_ucs_replaces_higher_cost_path_and_skips_stale_entries() -> None:

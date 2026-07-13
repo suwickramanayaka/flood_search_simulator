@@ -218,7 +218,7 @@ def make_step(
         event_type=event_type,
         current_node=current_node,
         frontier_nodes=frontier_nodes,
-        explored_nodes=tuple(explored_nodes),
+        explored_nodes=tuple(sorted(explored_nodes)),
         current_path=tuple(current_path),
         frontier_entries=tuple(dict(entry) for entry in frontier_entries),
         g_cost=g_cost,

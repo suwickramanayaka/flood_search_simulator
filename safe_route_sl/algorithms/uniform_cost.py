@@ -181,6 +181,7 @@ class UniformCostSearch(SearchAlgorithm):
                 current_path,
                 g_cost=accumulated_cost,
                 nodes_expanded=nodes_expanded,
+                nodes_generated=nodes_generated,
                 maximum_frontier_size=maximum_frontier_size,
                 explanation=(
                     f"UCS selected {current_node} because it had the lowest accumulated path cost g(n)={accumulated_cost} in the priority queue. "

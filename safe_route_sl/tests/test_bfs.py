@@ -76,4 +76,14 @@ def test_bfs_deterministic_choice_on_equal_frontier() -> None:
 
     result = BreadthFirstSearch().search(graph, make_start_goal_config("Breadth-First Search", "A", "G"))
     assert result.final_path == ("A", "B", "G")
+
+
+def test_recorded_explored_nodes_are_sorted() -> None:
+    graph = make_unweighted_choice_graph()
+    result = BreadthFirstSearch().search(
+        graph,
+        make_start_goal_config("Breadth-First Search", "A", "G"),
+    )
+
+    assert all(step.explored_nodes == tuple(sorted(step.explored_nodes)) for step in result.steps)
 """Phase 1 placeholder for BFS tests."""
