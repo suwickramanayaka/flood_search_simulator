@@ -203,6 +203,4 @@ Screenshots are intentionally not generated or committed automatically.
 - Accessibility, multilingual labels, and mobile-layout improvements
 - Additional toolkit adapters that remain separate from the primary custom algorithms
 
-## Assignment demonstration guide
 
-Use [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) for a timed 7–10 minute walkthrough. Before presenting, complete [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md), run both test commands, capture the requested screenshots, and confirm the disclaimer is visible. Emphasize the distinction between minimum edges, minimum weighted cost, heuristic guidance, approximate timing, and conditional validation.
